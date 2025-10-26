@@ -11,7 +11,7 @@ const Footer = () => {
           </Col>
           <Col md={6} className="text-md-end">
             <div className="footer-social">
-              <a href="https://github.com/dinogamboa111/Evaluacion-1-Grupo-4" target="_blank" rel="noopener noreferrer" className="me-3">
+              <a href="https://github.com/dinogamboa111/Evaluacion-2-Grupo-4" target="_blank" rel="noopener noreferrer" className="me-3">
                 GitHub
               </a>
               <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer">
