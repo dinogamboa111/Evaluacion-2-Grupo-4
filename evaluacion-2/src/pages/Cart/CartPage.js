@@ -92,7 +92,7 @@ const CartPage = () => {
         {cartItems.length === 0 ? (
           <div className="cart-empty-content text-center">
             <h3>Tu carrito está vacío</h3>
-            <p className="text-muted">Agrega productos desde arriba para empezar</p>
+            <p style={{ color: 'white' }}>Agrega productos desde arriba para empezar</p>
           </div>
         ) : (
           /* Carrito con items */
