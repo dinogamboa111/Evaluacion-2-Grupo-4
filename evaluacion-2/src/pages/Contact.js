@@ -145,7 +145,10 @@ const Contact = () => {
               <Card.Body className="p-4">
                 <div className="form-header mb-4">
                   <h3>Envíame un mensaje</h3>
-                  <p className="text-muted">Completa el formulario y me pondré en contacto contigo pronto</p>
+                  {/* 🔹 Texto cambiado a blanco */}
+                  <p style={{ color: 'white' }}>
+                    Completa el formulario y me pondré en contacto contigo pronto
+                  </p>
                 </div>
 
                 <Form onSubmit={handleSubmit}>
@@ -222,19 +225,20 @@ const Contact = () => {
                     />
                   </Form.Group>
 
-                  <div className="whatsapp-option p-3 bg-light rounded mb-3">
+                  {/* 🔹 Sección de WhatsApp en color púrpura */}
+                  <div className="whatsapp-option p-3 rounded mb-3" style={{ backgroundColor: '#f5e8ff' }}>
                     <Form.Check
                       type="checkbox"
                       id="whatsapp_contact"
                       name="whatsapp_contact"
                       checked={formData.whatsapp_contact}
                       onChange={handleChange}
-                      label="Prefiero que me contacten por WhatsApp"
+                      label={<span style={{ color: '#6f42c1', fontWeight: '500' }}>Prefiero que me contacten por WhatsApp</span>}
                       className="mb-2"
                     />
                     
                     <Form.Group>
-                      <Form.Label>Número de WhatsApp</Form.Label>
+                      <Form.Label style={{ color: '#6f42c1', fontWeight: '500' }}>Número de WhatsApp</Form.Label>
                       <Form.Control
                         type="tel"
                         name="telefono"
@@ -242,6 +246,10 @@ const Contact = () => {
                         onChange={handleChange}
                         disabled={!formData.whatsapp_contact}
                         placeholder="+56 9 1234 5678"
+                          style={{
+                            color: '#333', // texto que escribe el usuario, gris oscuro
+                            WebkitTextFillColor: '#555' // placeholder en gris oscuro
+                          }}
                       />
                     </Form.Group>
                   </div>
@@ -256,8 +264,9 @@ const Contact = () => {
                     {isSubmitting ? 'Enviando...' : 'Enviar Mensaje'}
                   </Button>
 
+                  {/* 🔹 Texto de seguridad en blanco */}
                   <div className="form-footer text-center mt-3">
-                    <small className="text-muted">
+                    <small style={{ color: 'white' }}>
                       <i className="fas fa-shield-alt me-2"></i>
                       Tu información está segura y nunca será compartida
                     </small>
