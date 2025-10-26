@@ -173,31 +173,31 @@ const CartPage = () => {
                   <Card.Title className="section-title mb-4">Resumen</Card.Title>
                   
                   <ListGroup variant="flush" className="cart-summary-list">
-                  {/* Subtotal */}
-                  <ListGroup.Item className="cart-summary-item">
-                    <span>Subtotal ({cartItems.reduce((total, item) => total + item.quantity, 0)} items)</span>
-                    <span>${Math.round(totalPrice).toLocaleString('es-CL')}</span>
-                  </ListGroup.Item>
+                    {/* Subtotal */}
+                    <ListGroup.Item className="cart-summary-item">
+                      <span>Subtotal ({cartItems.reduce((total, item) => total + item.quantity, 0)} items)</span>
+                      <span>${totalPrice.toLocaleString('es-CL')}</span>
+                    </ListGroup.Item>
 
-                  {/* Envío */}
-                  <ListGroup.Item className="cart-summary-item">
-                    <span>Envío</span>
-                    <span className="text-success">Gratis</span>
-                  </ListGroup.Item>
+                    {/* Envío */}
+                    <ListGroup.Item className="cart-summary-item">
+                      <span>Envío</span>
+                      <span className="text-success">Gratis</span>
+                    </ListGroup.Item>
 
-                  {/* Impuesto */}
-                  <ListGroup.Item className="cart-summary-item">
-                    <span>Impuesto (19%)</span>
-                    <span>${Math.round(totalPrice * 0.19).toLocaleString('es-CL')}</span>
-                  </ListGroup.Item>
+                    {/* Impuesto */}
+                    <ListGroup.Item className="cart-summary-item">
+                      <span>Impuesto (19%)</span>
+                      <span>${(totalPrice * 0.19).toLocaleString('es-CL')}</span>
+                    </ListGroup.Item>
 
-                  {/* Total */}
-                  <ListGroup.Item className="cart-summary-total">
+                    {/* Total */}
+                    <ListGroup.Item className="cart-summary-total">
                     <strong>Total</strong>
                     <strong>${Math.round(totalPrice * 1.19).toLocaleString('es-CL')}</strong>
-                  </ListGroup.Item>
-                </ListGroup>
+                    </ListGroup.Item>
 
+                  </ListGroup>
 
                   {/* Botones */}
                   <Button 
