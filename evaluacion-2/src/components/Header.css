@@ -1,0 +1,48 @@
+/* ===== BOTÓN DEL CARRITO ===== */
+
+.cart-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  transition: all 0.3s ease;
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.cart-link:hover {
+  color: #bd25eb !important;
+}
+
+.cart-link.active {
+  color: #bd25eb !important;
+}
+
+/* ===== BADGE DEL CARRITO ===== */
+
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -12px;
+  font-size: 0.7rem;
+  padding: 0.3rem 0.5rem !important;
+  border-radius: 50%;
+  background: #ef4444 !important;
+  min-width: 20px;
+  text-align: center;
+  animation: pulse 2s infinite;
+  font-weight: 700;
+}
+
+/* Animación de pulso */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
