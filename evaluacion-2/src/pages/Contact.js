@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card, Alert } from 'react-bootstrap';
 import { sendContactForm } from '../utils/api';
+import { validateContactForm, validateEmail } from '../utils/validation';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alert, setAlert] = useState({ show: false, type: '', message: '' });
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -21,10 +23,28 @@ const Contact = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+
+    // Validación en tiempo real para email
+    if (name === 'email' && value) {
+      if (!validateEmail(value)) {
+        setErrors(prev => ({ ...prev, email: 'Email debe tener formato: usuario@dominio.com' }));
+      } else {
+        setErrors(prev => ({ ...prev, email: '' }));
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validación completa del formulario
+    const formErrors = validateContactForm(formData);
+    if (Object.keys(formErrors).length > 0) {
+      setErrors(formErrors);
+      return;
+    }
+
+    setErrors({});
     setIsSubmitting(true);
     setAlert({ show: false, type: '', message: '' });
 
@@ -145,10 +165,7 @@ const Contact = () => {
               <Card.Body className="p-4">
                 <div className="form-header mb-4">
                   <h3>Envíame un mensaje</h3>
-                  {/* 🔹 Texto cambiado a blanco */}
-                  <p style={{ color: 'white' }}>
-                    Completa el formulario y me pondré en contacto contigo pronto
-                  </p>
+                  <p className="text-muted">Completa el formulario y me pondré en contacto contigo pronto</p>
                 </div>
 
                 <Form onSubmit={handleSubmit}>
@@ -164,7 +181,11 @@ const Contact = () => {
                           required
                           placeholder="Tu nombre"
                           minLength="2"
+                          isInvalid={!!errors.nombre}
                         />
+                        <Form.Control.Feedback type="invalid">
+                          {errors.nombre}
+                        </Form.Control.Feedback>
                       </Form.Group>
                     </Col>
                     <Col md={6}>
@@ -176,8 +197,12 @@ const Contact = () => {
                           value={formData.email}
                           onChange={handleChange}
                           required
-                          placeholder="tu@email.com"
+                          placeholder="tu@dominio.com"
+                          isInvalid={!!errors.email}
                         />
+                        <Form.Control.Feedback type="invalid">
+                          {errors.email}
+                        </Form.Control.Feedback>
                       </Form.Group>
                     </Col>
                   </Row>
@@ -189,6 +214,7 @@ const Contact = () => {
                       value={formData.referencia}
                       onChange={handleChange}
                       required
+                      isInvalid={!!errors.referencia}
                     >
                       <option value="">Selecciona una opción</option>
                       <option value="google">Búsqueda en Google</option>
@@ -197,6 +223,9 @@ const Contact = () => {
                       <option value="evento">Evento o Conferencia</option>
                       <option value="otro">Otro</option>
                     </Form.Select>
+                    <Form.Control.Feedback type="invalid">
+                      {errors.referencia}
+                    </Form.Control.Feedback>
                   </Form.Group>
 
                   <Form.Group className="mb-3">
@@ -208,7 +237,11 @@ const Contact = () => {
                       onChange={handleChange}
                       required
                       placeholder="¿Sobre qué quieres hablar?"
+                      isInvalid={!!errors.asunto}
                     />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.asunto}
+                    </Form.Control.Feedback>
                   </Form.Group>
 
                   <Form.Group className="mb-3">
@@ -222,23 +255,26 @@ const Contact = () => {
                       required
                       placeholder="Cuéntame más sobre tu proyecto..."
                       minLength="10"
+                      isInvalid={!!errors.mensaje}
                     />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.mensaje}
+                    </Form.Control.Feedback>
                   </Form.Group>
 
-                  {/* 🔹 Sección de WhatsApp en color púrpura */}
-                  <div className="whatsapp-option p-3 rounded mb-3" style={{ backgroundColor: '#f5e8ff' }}>
+                  <div className="whatsapp-option p-3 bg-light rounded mb-3">
                     <Form.Check
                       type="checkbox"
                       id="whatsapp_contact"
                       name="whatsapp_contact"
                       checked={formData.whatsapp_contact}
                       onChange={handleChange}
-                      label={<span style={{ color: '#6f42c1', fontWeight: '500' }}>Prefiero que me contacten por WhatsApp</span>}
+                      label="Prefiero que me contacten por WhatsApp"
                       className="mb-2"
                     />
                     
                     <Form.Group>
-                      <Form.Label style={{ color: '#6f42c1', fontWeight: '500' }}>Número de WhatsApp</Form.Label>
+                      <Form.Label>Número de WhatsApp</Form.Label>
                       <Form.Control
                         type="tel"
                         name="telefono"
@@ -246,11 +282,11 @@ const Contact = () => {
                         onChange={handleChange}
                         disabled={!formData.whatsapp_contact}
                         placeholder="+56 9 1234 5678"
-                          style={{
-                            color: '#333', // texto que escribe el usuario, gris oscuro
-                            WebkitTextFillColor: '#555' // placeholder en gris oscuro
-                          }}
+                        isInvalid={!!errors.telefono}
                       />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.telefono}
+                      </Form.Control.Feedback>
                     </Form.Group>
                   </div>
 
@@ -264,9 +300,8 @@ const Contact = () => {
                     {isSubmitting ? 'Enviando...' : 'Enviar Mensaje'}
                   </Button>
 
-                  {/* 🔹 Texto de seguridad en blanco */}
                   <div className="form-footer text-center mt-3">
-                    <small style={{ color: 'white' }}>
+                    <small className="text-muted">
                       <i className="fas fa-shield-alt me-2"></i>
                       Tu información está segura y nunca será compartida
                     </small>
