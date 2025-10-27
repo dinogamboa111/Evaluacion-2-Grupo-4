@@ -12,6 +12,7 @@ Página web enfocada en información relacionada con el mundo TI y el espacio. C
 - React-Bootstrap
 - React Router v6
 - Jasmine + Karma (para testing)
+- React Testing Library
 
 ## Instalación y Uso
 
