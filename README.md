@@ -37,7 +37,17 @@ Sigue estos pasos para preparar y ejecutar el proyecto en tu máquina local.
 
 ## Pruebas (Testing)
 
-El proyecto está configurado con Karma y Jasmine para pruebas unitarias. Puedes ejecutar la suite completa o filtrar por tests específicos.
+Testing
+
+Este proyecto utiliza varias herramientas para garantizar la calidad del código y la funcionalidad de los componentes:
+
+Karma: Test runner que ejecuta las pruebas en diferentes navegadores.
+
+Jasmine: Framework de pruebas para escribir tests de manera clara y estructurada.
+
+React Testing Library: Biblioteca que facilita testear componentes de React simulando la interacción real del usuario.
+
+Las pruebas incluyen validación de formularios, interacción con inputs, selects y checkboxes, asegurando una cobertura mínima del 80%.
 
 ```bash
 ## Ejecutar la suite de tests completa en modo interactivo (watch mode)
