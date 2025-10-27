@@ -216,14 +216,16 @@ const Contact = () => {
                       onChange={handleChange}
                       required
                       isInvalid={!!errors.referencia}
+                      style={{ color: '#6c757d', backgroundColor: '#fff' }} // 👈 texto gris
                     >
                       <option value="">Selecciona una opción</option>
-                      <option value="google">Búsqueda en Google</option>
-                      <option value="redes_sociales">Redes Sociales</option>
-                      <option value="recomendacion">Recomendación</option>
-                      <option value="evento">Evento o Conferencia</option>
-                      <option value="otro">Otro</option>
+                      <option value="google" style={{ color: '#6c757d' }}>Búsqueda en Google</option>
+                      <option value="redes_sociales" style={{ color: '#6c757d' }}>Redes Sociales</option>
+                      <option value="recomendacion" style={{ color: '#6c757d' }}>Recomendación</option>
+                      <option value="evento" style={{ color: '#6c757d' }}>Evento o Conferencia</option>
+                      <option value="otro" style={{ color: '#6c757d' }}>Otro</option>
                     </Form.Select>
+
                     <Form.Control.Feedback type="invalid">
                       {errors.referencia}
                     </Form.Control.Feedback>
