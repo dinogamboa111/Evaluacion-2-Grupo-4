@@ -1803,7 +1803,7 @@ Al ejecutar las 28 pruebas totales realizadas, se obtienen los siguientes result
 
 <p>
   <strong>Para descargar Excel con Tabla de cobertura hacer click para redireccionar a zona de descarga en Github</strong> 
-  <a href="./evaluacion-2/docs/ResultadosCoberturaTesting_SpaceTI_React.xlsx" download="ResultadosCoberturaTesting_SpaceTI_React.xlsx">AQUÍ</a>
+  <a href="./docs/ResultadosCoberturaTesting_SpaceTI_React.xlsx" download="ResultadosCoberturaTesting_SpaceTI_React.xlsx">AQUÍ</a>
 </p>
 
 ---
