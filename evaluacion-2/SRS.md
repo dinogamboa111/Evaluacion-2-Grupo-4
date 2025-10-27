@@ -1798,10 +1798,12 @@ Al ejecutar las 28 pruebas totales realizadas, se obtienen los siguientes result
 | **SUMA TOTAL** | **35 Pruebas Ejecutadas (35 Exitosas)** | **0.302 secs** |
 
 
+# 6.5 Evidencias de Testing
+
 
 <p>
-  <strong>Para descargar Excel con Tabla de cobertura hacer click</strong> 
-  <a href="./docs/ResultadosCoberturaTesting_SpaceTI.xlsx" download="ResultadosCoberturaTesting_SpaceTI.xlsx">AQUÍ</a>
+  <strong>Para descargar Excel con Tabla de cobertura hacer click para redireccionar a zona de descarga en Github</strong> 
+  <a href="./evaluacion-2/docs/ResultadosCoberturaTesting_SpaceTI_React.xlsx" download="ResultadosCoberturaTesting_SpaceTI_React.xlsx">AQUÍ</a>
 </p>
 
 ---
