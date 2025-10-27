@@ -1,20 +1,30 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
+import './Footer.css'; // 👈 asegúrate de importar el CSS
 
 const Footer = () => {
   return (
-    <footer className="footer py-4 mt-5">
+    <footer className="footer py-4">
       <Container>
-        <Row className="align-items-center">
+        <Row className="align-items-center text-center text-md-start">
           <Col md={6}>
             <p className="mb-0">© 2025 SpaceTI. Todos los derechos reservados.</p>
           </Col>
-          <Col md={6} className="text-md-end">
+          <Col md={6} className="text-md-end mt-3 mt-md-0">
             <div className="footer-social">
-              <a href="https://github.com/dinogamboa111/Evaluacion-1-Grupo-4" target="_blank" rel="noopener noreferrer" className="me-3">
+              <a
+                href="https://github.com/dinogamboa111/Evaluacion-2-Grupo-4"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="me-3"
+              >
                 GitHub
               </a>
-              <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 YouTube
               </a>
             </div>
