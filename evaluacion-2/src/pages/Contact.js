@@ -37,7 +37,6 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validación completa del formulario
     const formErrors = validateContactForm(formData);
     if (Object.keys(formErrors).length > 0) {
       setErrors(formErrors);
@@ -161,11 +160,13 @@ const Contact = () => {
           </Col>
 
           <Col lg={6}>
-            <Card className="contact-form-card">
+            <Card className="contact-form-card bg-dark text-light">
               <Card.Body className="p-4">
                 <div className="form-header mb-4">
                   <h3>Envíame un mensaje</h3>
-                  <p className="text-muted">Completa el formulario y me pondré en contacto contigo pronto</p>
+                  <p className="text-white">
+                    Completa el formulario y me pondré en contacto contigo pronto
+                  </p>
                 </div>
 
                 <Form onSubmit={handleSubmit}>
@@ -269,12 +270,12 @@ const Contact = () => {
                       name="whatsapp_contact"
                       checked={formData.whatsapp_contact}
                       onChange={handleChange}
-                      label="Prefiero que me contacten por WhatsApp"
+                      label={<span style={{ color: '#6c757d' }}>Prefiero que me contacten por WhatsApp</span>}
                       className="mb-2"
                     />
                     
                     <Form.Group>
-                      <Form.Label>Número de WhatsApp</Form.Label>
+                      <Form.Label style={{ color: '#6c757d' }}>Número de WhatsApp</Form.Label>
                       <Form.Control
                         type="tel"
                         name="telefono"
@@ -301,7 +302,7 @@ const Contact = () => {
                   </Button>
 
                   <div className="form-footer text-center mt-3">
-                    <small className="text-muted">
+                    <small className="text-white">
                       <i className="fas fa-shield-alt me-2"></i>
                       Tu información está segura y nunca será compartida
                     </small>
