@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="63" lines-covered="56" line-rate="0.8887999999999999" branches-valid="32" branches-covered="27" branch-rate="0.8437" timestamp="1761595938228" complexity="0" version="0.1">
+<coverage lines-valid="63" lines-covered="56" line-rate="0.8887999999999999" branches-valid="32" branches-covered="27" branch-rate="0.8437" timestamp="1761687083789" complexity="0" version="0.1">
   <sources>
     <source>C:\Users\gambo\OneDrive\Documentos\GitHub\Evaluacion-2-Grupo-4\evaluacion-2</source>
   </sources>
