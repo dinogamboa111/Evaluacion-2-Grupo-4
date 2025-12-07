@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+
+/* Combobox con texto negro */
+.form-select {
+  color: #000 !important;
+  background-color: #fff !important;
+}
+
+/* Placeholder gris en inputs y teléfono */
+.form-control::placeholder {
+  color: #6c757d !important;
+}
+
+/* Etiqueta gris en WhatsApp */
+.whatsapp-option label,
+.whatsapp-option .form-label {
+  color: #6c757d !important;
+}

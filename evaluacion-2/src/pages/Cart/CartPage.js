@@ -1,339 +1,240 @@
-import { useState } from 'react'; // useState para modal de pago <----
+import React, { useEffect, useState } from 'react';
+import { Button, Table, Alert, Spinner, Container, Row, Col } from 'react-bootstrap';
 import { useCart } from '../../context/CartContext';
-import { Container, Row, Col, Card, Button, ListGroup, Modal, Form, Spinner } from 'react-bootstrap';
-import { products } from '../../data/products';
+import { getAllProductos } from '../../services/productoService';
+import { crearOrden } from '../../services/ordenService';
 import ProductCard from '../../components/ProductCard/ProductCard';
-import './CartPage.css';
 
 const CartPage = () => {
-  const { cartItems, totalPrice, removeFromCart, decrementQuantity, incrementQuantity, clearCart } = useCart();
-  
-  // NUEVO: Estados para el modal de pago
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentStep, setPaymentStep] = useState('loading'); // 'loading' | 'form' | 'success'
-  const [formData, setFormData] = useState({
-    cardNumber: '',
-    cardHolder: '',
-    expiryDate: '',
-    cvv: ''
-  });
+  const { cartItems, removeFromCart, clearCart } = useCart();
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
 
-  // NUEVO: Función para proceder al pago
-  const handleProceedPayment = () => {
-    setShowPaymentModal(true);
-    setPaymentStep('loading');
-    
-    // Simulación de procesamiento (3 segundos)
-    setTimeout(() => {
-      setPaymentStep('form');
-    }, 3000);
-  };
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        console.log('=== INICIANDO CARGA DE PRODUCTOS ===');
+        const data = await getAllProductos();
+        console.log('Productos recibidos:', data);
+        console.log('Cantidad de productos:', data?.length);
+        console.log('Primer producto:', data?.[0]);
+        setProductos(data);
+        console.log('Estado productos actualizado');
+      } catch (err) {
+        console.error('ERROR cargando productos:', err);
+        console.error('Error completo:', err.response || err.message);
+      }
+    };
+    fetchProductos();
+  }, []);
 
-  // NUEVO: Función para cambios en el formulario
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const subtotal = cartItems.reduce((acc, item) => {
+    const producto = productos.find(p => p.id === item.productoId);
+    return acc + (producto ? Number(producto.precio) * item.cantidad : 0);
+  }, 0);
 
-  // NUEVO: Función para completar pago
-  const handleCompletePayment = () => {
-    // Validación simple
-    if (!formData.cardNumber || !formData.cardHolder || !formData.expiryDate || !formData.cvv) {
-      alert('Por favor completa todos los campos');
+  const impuesto = subtotal * 0.19;
+  const total = subtotal + impuesto;
+
+  const handleCrearOrden = async () => {
+    if (cartItems.length === 0) {
+      setError('El carrito esta vacio');
       return;
     }
-
-    // Simular éxito
-    setPaymentStep('success');
     
-    // Después de 2 segundos, cerrar modal y limpiar carrito
-    setTimeout(() => {
-      setShowPaymentModal(false);
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      console.log('Items en carrito:', cartItems);
+
+      const items = cartItems.map(item => {
+        if (!item.productoId || !item.cantidad) {
+          console.error('Item invalido:', item);
+          throw new Error('Item del carrito invalido');
+        }
+        return {
+          productoId: item.productoId,
+          cantidad: item.cantidad
+        };
+      });
+
+      const ordenRequest = {
+        items: items,
+        infoPago: {
+          metodo: 'tarjeta',
+          cardHolder: 'Usuario Frontend',
+          cardNumber: '**** **** **** 1234'
+        }
+      };
+
+      console.log('Enviando orden:', ordenRequest);
+
+      const responseData = await crearOrden(ordenRequest);
+      
+      console.log('Orden creada:', responseData);
+      
       clearCart();
-      setFormData({ cardNumber: '', cardHolder: '', expiryDate: '', cvv: '' });
-      setPaymentStep('loading');
-      alert('¡Compra realizada exitosamente!');
-    }, 2000);
+      setSuccess(true);
+      
+      setTimeout(() => setSuccess(false), 5000);
+
+    } catch (err) {
+      console.error('Error completo:', err);
+      console.error('Response data:', err.response?.data);
+      
+      let errorMessage = 'Error al crear la orden';
+      
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.validationErrors) {
+        const errors = err.response.data.validationErrors;
+        errorMessage = Object.values(errors).join(', ');
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // NUEVO: Función para cancelar
-  const handleCancelPayment = () => {
-    setShowPaymentModal(false);
-    setFormData({ cardNumber: '', cardHolder: '', expiryDate: '', cvv: '' });
-    setPaymentStep('loading');
-  };
+  console.log('RENDER - Productos en estado:', productos);
+  console.log('RENDER - Cantidad:', productos.length);
 
   return (
-    <Container className="cart-page">
-      {/* ===== SECCIÓN DE PRODUCTOS DISPONIBLES ===== */}
-      <section className="products-section mb-5">
-        <h1 className="section-title mb-5">Tienda</h1>
-        
-        <Row xs={1} md={2} lg={4} className="g-4 mb-5">
-          {products.map(product => (
-            <Col key={product.id}>
-              <ProductCard product={product} />
+    <Container className="mt-4">
+      <h2 className="mb-4 text-center">Productos disponibles</h2>
+
+      {productos.length === 0 ? (
+        <Alert variant="warning">
+          Cargando productos...
+        </Alert>
+      ) : (
+        <Row className="g-4">
+          {productos.map(producto => (
+            <Col 
+              key={producto.id} 
+              xs={12}
+              sm={6}
+              md={4}
+              lg={3}
+              className="d-flex"
+            >
+              <ProductCard product={producto} />
             </Col>
           ))}
         </Row>
-      </section>
+      )}
 
-      {/* SEPARADOR */}
-      <hr className="my-5 section-divider" />
+      <h2 className="mt-5 mb-4">Carrito de Compras</h2>
+      
+      {success && (
+        <Alert variant="success" dismissible onClose={() => setSuccess(false)}>
+          Orden creada exitosamente! Tu compra ha sido procesada.
+        </Alert>
+      )}
+      
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
-      {/*SECCIÓN DEL CARRITO*/}
-      <section className="cart-section">
-        <h1 className="section-title mb-5">Mi Carrito</h1>
+      {cartItems.length === 0 ? (
+        <Alert variant="info">
+          Tu carrito esta vacio. Agrega productos para comenzar.
+        </Alert>
+      ) : (
+        <>
+          <Table striped bordered hover responsive>
+            <thead className="table-dark">
+              <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cartItems.map(item => {
+                const producto = productos.find(p => p.id === item.productoId);
+                if (!producto) {
+                  console.warn('Producto no encontrado:', item.productoId);
+                  return null;
+                }
+                
+                const itemSubtotal = Number(producto.precio) * item.cantidad;
+                
+                return (
+                  <tr key={item.productoId}>
+                    <td>
+                      <strong>{producto.nombre}</strong>
+                    </td>
+                    <td>${Number(producto.precio).toLocaleString('es-CL')}</td>
+                    <td>
+                      <span className="badge bg-primary">{item.cantidad}</span>
+                    </td>
+                    <td>
+                      <strong>${itemSubtotal.toLocaleString('es-CL')}</strong>
+                    </td>
+                    <td>
+                      <Button 
+                        variant="danger" 
+                        size="sm" 
+                        onClick={() => removeFromCart(item.productoId)}
+                      >
+                        Eliminar
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
 
-        {/* Si el carrito está vacío */}
-        {cartItems.length === 0 ? (
-          <div className="cart-empty-content text-center">
-            <h3>Tu carrito está vacío</h3>
-            <p style={{ color: 'white' }}>Agrega productos desde arriba para empezar</p>
+          <div className="text-end bg-light p-3 rounded">
+            <p className="mb-1 text-muted">
+              <strong>Subtotal:</strong> ${subtotal.toLocaleString('es-CL')}
+            </p>
+            <p className="mb-1 text-muted">
+              <strong>Impuesto (19%):</strong> ${impuesto.toLocaleString('es-CL')}
+            </p>
+            <h4 className="text-success mt-2">
+              <strong>Total a Pagar:</strong> ${total.toLocaleString('es-CL')}
+            </h4>
           </div>
-        ) : (
-          /* Carrito con items */
-          <Row className="g-4">
-            {/* Columna de items */}
-            <Col lg={8}>
-              <div className="cart-items-container">
-                {cartItems.map(item => (
-                  <div key={item.id} className="cart-item-card">
-                    <Row className="align-items-center g-3">
-                      {/* Imagen */}
-                      <Col xs={12} sm={3}>
-                        <img 
-                          src={item.img} 
-                          alt={item.name} 
-                          className="cart-item-image"
-                        />
-                      </Col>
 
-                      {/* Info del producto */}
-                      <Col xs={12} sm={5}>
-                        <h5 className="cart-item-name">{item.name}</h5>
-                        <p className="cart-item-description">{item.description}</p>
-                        <p className="cart-item-price">
-                          ${item.price.toLocaleString('es-CL')}
-                        </p>
-                      </Col>
-
-                      {/* Controles de cantidad */}
-                      <Col xs={12} sm={4}>
-                        <div className="quantity-controls">
-                          <Button 
-                            variant="outline-light" 
-                            size="sm"
-                            onClick={() => decrementQuantity(item.id)}
-                            className="qty-btn"
-                          >
-                            −
-                          </Button>
-                          <span className="qty-display">{item.quantity}</span>
-                          <Button 
-                            variant="outline-light" 
-                            size="sm"
-                            onClick={() => incrementQuantity(item.id)}
-                            className="qty-btn"
-                          >
-                            +
-                          </Button>
-                        </div>
-                      </Col>
-                    </Row>
-
-                    {/* Fila con total y eliminar */}
-                    <Row className="mt-3">
-                      <Col className="text-end">
-                        <strong className="cart-item-total">
-                          Total: ${(item.price * item.quantity).toLocaleString('es-CL')}
-                        </strong>
-                        <Button 
-                          variant="danger" 
-                          size="sm"
-                          onClick={() => removeFromCart(item.id)}
-                          className="ms-3"
-                        >
-                          Eliminar
-                        </Button>
-                      </Col>
-                    </Row>
-                  </div>
-                ))}
-              </div>
-            </Col>
-
-            {/* Columna de resumen */}
-            <Col lg={4}>
-              <Card className="cart-summary-card">
-                <Card.Body>
-                  <Card.Title className="section-title mb-4">Resumen</Card.Title>
-                  
-                  <ListGroup variant="flush" className="cart-summary-list">
-                    {/* Subtotal */}
-                    <ListGroup.Item className="cart-summary-item">
-                      <span>Subtotal ({cartItems.reduce((total, item) => total + item.quantity, 0)} items)</span>
-                      <span>${totalPrice.toLocaleString('es-CL')}</span>
-                    </ListGroup.Item>
-
-                    {/* Envío */}
-                    <ListGroup.Item className="cart-summary-item">
-                      <span>Envío</span>
-                      <span className="text-success">Gratis</span>
-                    </ListGroup.Item>
-
-                    {/* Impuesto */}
-                    <ListGroup.Item className="cart-summary-item">
-                      <span>Impuesto (19%)</span>
-                      <span>${(totalPrice * 0.19).toLocaleString('es-CL')}</span>
-                    </ListGroup.Item>
-
-                    {/* Total */}
-                    <ListGroup.Item className="cart-summary-total">
-                    <strong>Total</strong>
-                    <strong>${Math.round(totalPrice * 1.19).toLocaleString('es-CL')}</strong>
-                    </ListGroup.Item>
-
-                  </ListGroup>
-
-                  {/* Botones */}
-                  <Button 
-                    variant="success" 
-                    className="w-100 mt-4 btn-custom"
-                    size="lg"
-                    onClick={handleProceedPayment} // ✅ NUEVO: onClick
-                  >
-                    Proceder al Pago
-                  </Button>
-                  <Button 
-                    variant="outline-danger" 
-                    className="w-100 mt-2"
-                    onClick={clearCart}
-                  >
-                    Vaciar Carrito
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        )}
-      </section>
-
-      {/*MODAL DE PAGO*/}
-      <Modal 
-        show={showPaymentModal} 
-        onHide={handleCancelPayment}
-        centered
-        backdropClassName="payment-modal-backdrop"
-        className="payment-modal"
-      >
-        {/* PASO 1: LOADING */}
-        {paymentStep === 'loading' && (
-          <Modal.Body className="payment-loading">
-            <div className="text-center">
-              <Spinner animation="border" variant="primary" className="mb-3" style={{ width: '60px', height: '60px' }} />
-              <h4>Procesando pago...</h4>
-              <p className="text-muted">Por favor espera</p>
-            </div>
-          </Modal.Body>
-        )}
-
-        {/* PASO 2: FORMULARIO DE TARJETA */}
-        {paymentStep === 'form' && (
-          <>
-            <Modal.Header closeButton>
-              <Modal.Title>Ingresa tus datos de pago</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="payment-form">
-              <Form>
-                {/* Número de tarjeta */}
-                <Form.Group className="mb-3">
-                  <Form.Label>Número de Tarjeta</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="1234 5678 9012 3456"
-                    name="cardNumber"
-                    value={formData.cardNumber}
-                    onChange={handleFormChange}
-                    maxLength="19"
-                  />
-                </Form.Group>
-
-                {/* Titular */}
-                <Form.Group className="mb-3">
-                  <Form.Label>Titular de la tarjeta</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Juan Pérez"
-                    name="cardHolder"
-                    value={formData.cardHolder}
-                    onChange={handleFormChange}
-                  />
-                </Form.Group>
-
-                {/* Fecha y CVV */}
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Fecha de vencimiento</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="MM/YY"
-                        name="expiryDate"
-                        value={formData.expiryDate}
-                        onChange={handleFormChange}
-                        maxLength="5"
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>CVV</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="123"
-                        name="cvv"
-                        value={formData.cvv}
-                        onChange={handleFormChange}
-                        maxLength="3"
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                {/* Info total */}
-                <Card className="mb-3 bg-light">
-                  <Card.Body>
-                    <strong>Monto a pagar:</strong>
-                    <h5>${(totalPrice * 1.19).toLocaleString('es-CL')}</h5>
-                  </Card.Body>
-                </Card>
-              </Form>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="outline-secondary" onClick={handleCancelPayment}>
-                Cancelar
-              </Button>
-              <Button variant="success" onClick={handleCompletePayment}>
-                Confirmar Pago
-              </Button>
-            </Modal.Footer>
-          </>
-        )}
-
-        {/* PASO 3: ÉXITO */}
-        {paymentStep === 'success' && (
-          <Modal.Body className="payment-success text-center">
-            <div className="success-icon mb-3" style={{ fontSize: '60px' }}>✅</div>
-            <h4>¡Pago realizado!</h4>
-            <p className="text-muted">Gracias por tu compra</p>
-            <p className="text-success fw-bold">${(totalPrice * 1.19).toLocaleString('es-CL')}</p>
-          </Modal.Body>
-        )}
-      </Modal>
+          <div className="d-flex justify-content-end gap-2 mt-3">
+            <Button 
+              variant="outline-secondary" 
+              onClick={clearCart}
+              disabled={loading}
+            >
+              Vaciar carrito
+            </Button>
+            <Button 
+              variant="success" 
+              onClick={handleCrearOrden} 
+              disabled={loading}
+              size="lg"
+            >
+              {loading ? (
+                <>
+                  <Spinner size="sm" animation="border" /> Procesando...
+                </>
+              ) : (
+                'Confirmar compra'
+              )}
+            </Button>
+          </div>
+        </>
+      )}
     </Container>
   );
 };

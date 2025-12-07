@@ -1,72 +1,116 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext, useEffect } from 'react';
 
-// 1. Crear el Contexto
 const CartContext = createContext();
 
-// 2. Crear Hook personalizado
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart debe usarse dentro de CartProvider');
+  }
+  return context;
+};
 
-// 3. Crear el Provider
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
-
-  // Función para agregar un producto al carrito
-  const addToCart = (product) => {
-    const existingItem = cartItems.find(item => item.id === product.id);
-
-    if (existingItem) {
-      // Si ya existe, incrementamos cantidad
-      setCartItems(cartItems.map(item =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ));
-    } else {
-      // Si es nuevo, lo agregamos con cantidad 1
-      setCartItems([...cartItems, { ...product, quantity: 1 }]);
+  // Inicializar desde localStorage si existe
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const savedCart = localStorage.getItem('spaceti_cart');
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (error) {
+      console.error('Error cargando carrito desde localStorage:', error);
+      return [];
     }
+  });
+
+  // Guardar en localStorage cada vez que cambie el carrito
+  useEffect(() => {
+    try {
+      localStorage.setItem('spaceti_cart', JSON.stringify(cartItems));
+      console.log('Carrito guardado en localStorage:', cartItems);
+    } catch (error) {
+      console.error('Error guardando carrito en localStorage:', error);
+    }
+  }, [cartItems]);
+
+  const addToCart = (product) => {
+    console.log('Agregando producto:', product);
+
+    if (!product || !product.id) {
+      console.error('Producto invalido:', product);
+      return;
+    }
+
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => item.productoId === product.id);
+
+      if (existingItem) {
+        return prevItems.map(item =>
+          item.productoId === product.id
+            ? { ...item, cantidad: item.cantidad + 1 }
+            : item
+        );
+      } else {
+        return [
+          ...prevItems,
+          {
+            productoId: product.id,
+            nombre: product.nombre,
+            precio: Number(product.precio),
+            cantidad: 1,
+            imagenUrl: product.imagenUrl
+          }
+        ];
+      }
+    });
   };
 
-  // Eliminar un producto completamente del carrito
-  const removeFromCart = (productId) => {
-    setCartItems(cartItems.filter(item => item.id !== productId));
+  const removeFromCart = (productoId) => {
+    console.log('Eliminando producto:', productoId);
+    setCartItems(prevItems => prevItems.filter(item => item.productoId !== productoId));
   };
 
-  // Decrementar cantidad (si llega a 0, se elimina automáticamente)
-  const decrementQuantity = (productId) => {
-    setCartItems(cartItems.map(item =>
-      item.id === productId && item.quantity > 1
-        ? { ...item, quantity: item.quantity - 1 }
-        : item
-    ).filter(item => item.quantity > 0));
+  const incrementQuantity = (productoId) => {
+    console.log('Incrementando cantidad:', productoId);
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.productoId === productoId
+          ? { ...item, cantidad: item.cantidad + 1 }
+          : item
+      )
+    );
   };
 
-  // Incrementar cantidad
-  const incrementQuantity = (productId) => {
-    setCartItems(cartItems.map(item =>
-      item.id === productId
-        ? { ...item, quantity: item.quantity + 1 }
-        : item
-    ));
+  const decrementQuantity = (productoId) => {
+    console.log('Decrementando cantidad:', productoId);
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.productoId === productoId
+          ? { ...item, cantidad: Math.max(1, item.cantidad - 1) }
+          : item
+      )
+    );
   };
 
-  // Vaciar carrito completamente
   const clearCart = () => {
+    console.log('Vaciando carrito completo');
     setCartItems([]);
+    localStorage.removeItem('spaceti_cart');
   };
 
-  // Calculamos totales
-  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
-  const totalPrice = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const totalItems = cartItems.reduce((total, item) => total + item.cantidad, 0);
+  const totalPrice = cartItems.reduce((total, item) => {
+    const precio = Number(item.precio) || 0;
+    const cantidad = Number(item.cantidad) || 0;
+    return total + (precio * cantidad);
+  }, 0);
 
-  // 4. Devolvemos el Provider con todos los valores y funciones
   return (
     <CartContext.Provider value={{
       cartItems,
       addToCart,
       removeFromCart,
-      decrementQuantity,
       incrementQuantity,
+      decrementQuantity,
       clearCart,
       totalItems,
       totalPrice
