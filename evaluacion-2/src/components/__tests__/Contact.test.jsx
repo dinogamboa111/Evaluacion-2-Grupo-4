@@ -171,7 +171,7 @@ describe('PRUEBAS FORMULARIO CON VALIDATION.JS - CAMPO POR CAMPO + COMPLETO', ()
     const testTelefono = '+56 9 9876 5432';
     
     fireEvent.change(telefonoInput, { target: { value: testTelefono } });
-    
+
     expect(validatePhone(testTelefono)).toBe(true);
     expect(telefonoInput.value).toBe(testTelefono);
   });
@@ -228,7 +228,7 @@ describe('PRUEBAS FORMULARIO CON VALIDATION.JS - CAMPO POR CAMPO + COMPLETO', ()
     
     const validationErrors = validateContactForm(formData);
     expect(validationErrors).toEqual({});
-  });
+  });S
 
   // PRUEBA 9: Formulario INCOMPLETO
   it('VALIDACIÓN DE FORMULARIO INCOMPLETO con validation.js', () => {
@@ -425,7 +425,7 @@ describe('PRUEBAS FORMULARIO CON VALIDATION.JS - CAMPO POR CAMPO + COMPLETO', ()
     expect(validateEmail('valido@dominio.com')).toBe(true);
   });
 
-  // ====== NUEVOS TESTS PARA ALCANZAR 80% ======
+ 
 
   // PRUEBA 21: Intentar enviar formulario con errores de validación
   it('INTENTAR ENVIAR FORMULARIO CON ERRORES DE VALIDACIÓN', () => {
